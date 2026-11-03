@@ -1,0 +1,53 @@
+# GoReleaser 配置：https://goreleaser.com/customization/
+version: 2
+
+project_name: ai-upscaler
+
+builds:
+  - id: ai-upscaler
+    main: .
+    binary: ai-upscaler
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - darwin
+      - linux
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ignore:
+      - goos: windows
+        goarch: arm64
+    mod_timestamp: "{{ .CommitTimestamp }}"
+    ldflags:
+      - -s -w
+
+archives:
+  - id: default
+    name_template: >-
+      {{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}
+    formats:
+      - tar.gz
+    format_overrides:
+      - goos: windows
+        formats:
+          - zip
+    wrap_in_directory: false
+
+checksum:
+  name_template: "checksums.txt"
+
+source:
+  enabled: true
+
+changelog:
+  use: github
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^ci:"
+      - "^chore"
+      - "merge conflict"
